@@ -1,0 +1,102 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+#Read
+data1 = pd.read_csv('./bq-results-20200917-121928-l9w9tuz93i3g.csv', encoding='utf-8'
+                            ,dtype = {'no_kind' : str,'type_customer' : str,'type_service':str,'DLC':str,'OUTCODE':str} )
+
+df12=data1.dropna()
+df12.drop_duplicates()
+df12 = df12.rename(columns={'price_retail_sum': 'price_retail', 'price_50_sum': 'price_50', 'price_band_avg': 'price_band' })
+df12.head()
+
+# Split service types and eliminate a small number of atypical service types
+df12['type_revice1'] = df12['type_service'].str.get(0)
+df12['type_revice2'] = df12['type_service'].str.get(1)
+df12['type_revice2'].fillna('0', inplace=True)
+df12=df12[(df12['type_revice1']=='D')|(df12['type_revice1']=='Q')]
+df12['profit'] = df12['price_retail']-df12['cost']
+
+# df12.info()
+df12.head()
+
+# Analysis of service types: order volume, average cost, average price, average revenue;
+df12.groupby(['type_revice1']).size()
+df12[(df12['type_revice2']!='0')].groupby(['type_revice2']).size()
+df12.groupby(['type_revice1']).mean()
+df12.pivot_table( values='n', index='type_revice2', columns='type_revice1', aggfunc='sum')
+df12.pivot_table( values='cost', index='type_revice2', columns='type_revice1', aggfunc='mean')
+df12.pivot_table( values='price_retail', index='type_revice2', columns='type_revice1', aggfunc='mean')
+df12.pivot_table( values='profit', index='type_revice2', columns='type_revice1', aggfunc='mean')
+
+# Conclusions: Determine general service and technical installation categories
+df12['type_merge']=df12['type_revice2'].apply(lambda x: 1 if x=='0' else 2)
+
+# Time processing: Format conversion, days of the week
+df12['date_begin1'] = pd.to_datetime(df12['date_begin'])
+df12['date_end1'] = pd.to_datetime(df12['date_end'])
+df12['days'] = (df12['date_end1']-df12['date_begin1']).map(lambda x:x.days)
+df12['weekday_begin'] = df12['date_begin1'].apply(lambda x : x.weekday())
+df12['weekday_end'] = df12['date_end1'].apply(lambda x : x.weekday())
+df12.head()
+
+# Only part of the month, temporarily not considered
+# test = pd.to_datetime(df12['date_end']).apply(lambda x : x.strftime('%Y-%m'))
+# test.head()
+
+# Daily and weekly distribution of orders: Large quantity from Thursday to Sunday
+# df12.groupby(['weekday_begin']).size()
+# Distribution of daily cost and benefit of order: there is no significant difference in cost, the price is the highest from Friday to Saturday and the aging is slightly worse (average difference is half a day), the price is higher on Thursday and Monday, and the price is lower from Monday to Wednesday；
+# df12.groupby(['weekday_begin']).mean()
+# Distribution of delivery day and week: Thursday - Saturday quantity is large, the difference is relatively reduced
+# df12.groupby(['weekday_end']).size()
+# Distribution of delivery day and week: no significant difference in cost, higher price from Thursday to Saturday, relative decrease in difference
+# df12.groupby(['weekday_end']).mean()
+
+# Read data about service capabilities: Most technology installations have only two days of service per week
+frequency = pd.read_csv('./frequency.csv', encoding='utf-8'
+                            ,dtype = {'DLC':str,'OUTCODE':str}  )
+frequency.drop_duplicates()
+frequency['type_merge']=frequency['Type'].apply(lambda x: 1 if x=='General' else 2)
+frequency['Mon']=pd.DataFrame(frequency['Visit_Days'].str.contains('Mon'))
+frequency['Tue']=pd.DataFrame(frequency['Visit_Days'].str.contains('Tue'))
+frequency['Wed']=pd.DataFrame(frequency['Visit_Days'].str.contains('Wed'))
+frequency['Thu']=pd.DataFrame(frequency['Visit_Days'].str.contains('Thu'))
+frequency['Fri']=pd.DataFrame(frequency['Visit_Days'].str.contains('Fri'))
+frequency['Sat']=pd.DataFrame(frequency['Visit_Days'].str.contains('Sat'))
+frequency['Sun']=pd.DataFrame(frequency['Visit_Days'].str.contains('Sun'))
+frequency['Visit_Frequency_weekday']=frequency['Mon']+frequency['Tue']+frequency['Wed']+frequency['Thu']+frequency['Fri']
+frequency['Visit_Frequency_weekend']=frequency['Sat']+frequency['Sun']
+frequency['test']=frequency['Visit_Frequency_weekday']+frequency['Visit_Frequency_weekend']-frequency['Visit_Frequency']
+frequency.head()
+
+df13=pd.merge(df12, frequency, how='left', on=['DLC', 'OUTCODE','type_merge'])
+df13.head()
+
+df13.info()
+
+df13.head(50)
+
+test=frequency.groupby(['DLC','OUTCODE','type_merge']).max()
+
+df13=pd.merge(df12, test, how='left', on=['DLC', 'OUTCODE','type_merge'])
+df13.info()
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib notebook
+target = pd.read_csv('./merge.csv', encoding='utf-8' )
+# target.head()
+# Set the drawing style
+plt.style.use('seaborn-colorblind')
+ana1=target[['weekday_end','type_customer']].reset_index()
+ana1.head()
+plt.figure(figsize=(10, 6))
+# plt.subplot(131)
+sns.swarmplot('weekday_end', 'type_customer', data=ana1)
+
