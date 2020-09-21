@@ -1,0 +1,227 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+
+%matplotlib notebook
+
+target = pd.read_csv('./merge.csv', encoding='utf-8' )
+target.head()
+
+Set the drawing style
+plt.style.use('seaborn-colorblind')
+ana1=target[['weekday_end','type_customer']]
+ana1.head()
+plt.figure(figsize=(10, 6))
+plt.subplot(131)
+sns.swarmplot('weekday_end', 'type_customer', data=ana1)
+
+target[['date_end','weekday_end']].head()
+target.info()
+
+test1=target[['weekday_end','type_customer','n']]
+test2=test1.pivot_table(values='n',index='weekday_end',columns='type_customer',aggfunc='sum')
+test2.head(20)
+
+ana2=target[['weekday_end','no_kind']].reset_index()
+ana2.head()
+plt.figure(figsize=(10, 6))
+plt.subplot(131)
+sns.swarmplot('weekday_end', 'no_kind', data=ana1)
+
+test1=target[['weekday_end','no_kind','n']]
+test2=test1.pivot_table(values='n',index='no_kind',columns='weekday_end',aggfunc='sum')
+# test2
+
+ana3=target[['days','price_retail']].reset_index()
+ana3=head()
+plt.figure(figsize=(10, 6))
+plt.subplot(131)
+sns.violinplot('weekday_end', 'no_kind', data=ana1)
+
+test1=target.groupby(['var2_product',"days","price_50","price_retail"]).size()
+test1.head()
+test1.to_csv('./productdaysandprice.csv')
+target[(target['price_50']==250000)][['OUTCODE','price_50','price_retail']]
+
+test2=target.groupby(["var2_product","days","price_50"]).size()
+test2.head(20)
+test1.to_csv('./daysandprice.csv')
+
+target.groupby(['type_revice2']).size()
+target.groupby(['weekday_end']).mean()
+
+target['var1_customer']=target['type_customer'].apply(lambda x: 1 if x==7 else (2 if x==5 else (3 if x==2 else (4 if x==0 else (5 if x==1 else (6 if x==3 else (7 if x==6 else 8)))))) )
+target['var2_product']=target['no_kind'].apply(lambda x: 1 if x==121 else (2 if x==125 else (3 if x==100 else (4 if x==2004 else (5 if x==101 else (6 if x==102 else (8 if x==45 else 7)))))) )
+target['var3_type']=target['type_merge']
+target['var4_service1']=target['type_revice1'].apply(lambda x:1 if x=='D' else (2 if x=='Q' else 3 ) )
+target['var5_service2']=target['type_revice2'].apply(lambda x:1 if x=='S' else (2 if x=='N'  else (2 if x=='M' else (3 if x=='0' else (4 if x=='P' else (5 if x=='I' else (7 if x=='J' else (8 if x=='L' else 6))))))))
+target['var6_ifweekend']=target['weekday_end'].apply(lambda x:1 if x==0 else (1 if x==1 else (1 if x==2 else (1 if x==3 else (2 if x==4 else 2)))))
+target['var61_weekday']=target['weekday_end']
+target['var7_Freq']=target['Visit_Frequency']
+target['var8_Freq']=target['Visit_Frequency_weekday']
+target['var9_Freq']=target['Visit_Frequency_weekend'].apply(lambda x:1+x )
+target['var10_days']=target['days']
+target['target1']=target['price_retail']
+target['target2']=target['cost']
+target['target3']=target['profit']
+target.head()
+
+target1.loc[target['var2_product']==6].groupby(['var3_type']).mean()
+target1[['var61_weekday','target1','target2','target3']].groupby(['var61_weekday']).mean()
+
+target1=target[['var1_customer','var2_product','var3_type','var4_service1','var5_service2','var6_ifweekend','var61_weekday','var7_Freq','var8_Freq','var9_Freq','var10_days']]
+# target1['var1_customer_2']=target1['var1_customer']*target1['var1_customer']
+# target1['var2_product_2']=target1['var2_product']*target1['var2_product']
+# target1['var2_product_3']=target1['var2_product']*target1['var2_product']*target['var2_product']
+# target1['var3_type_2']=target1['var3_type']*target1['var3_type']
+# target1['var4_service1_2']=target1['var4_service1']*target1['var4_service1']
+target1['var5_service2_2']=target1['var5_service2']*target1['var5_service2']
+# target1['var6_ifweekend_2']=target1['var6_ifweekend']*target1['var6_ifweekend']
+target1['var61_weekday_2']=target1['var61_weekday']*target1['var61_weekday']
+# target1['var7_Freq_2']=target1['var7_Freq']*target1['var7_Freq']
+# target1['var8_Freq_2']=target1['var8_Freq']*target1['var8_Freq']
+# target1['var9_Freq_2']=target1['var9_Freq']*target1['var9_Freq']
+# target1['var10_days_2']=target1['var10_days']*target1['var10_days']
+target1['target1']=target['target1']
+target1['target2']=target['target2']
+target1['target3']=target['target3']
+target1=target1.sort_values(by = ['target1','target3'],axis = 0,ascending = True)
+# target1.head()
+
+test=target1[['var1_customer','var2_product','var3_type','var4_service1','var5_service2','var6_ifweekend','var7_Freq','var8_Freq','var9_Freq','var10_days','target1']]
+test1=test.loc[(target1['var2_product']==3)].groupby(['var1_customer','var2_product','var3_type','var4_service1','var5_service2','var6_ifweekend','var7_Freq','var8_Freq','var9_Freq','var10_days']).mean()
+test1.to_csv('./test.csv')
+test1.head(30)
+
+help(target2.sort_values)
+
+target2=target1.loc[(target1['var2_product']>=6)&(target1['var2_product']<=7)&(target1['var2_product']!=7)&(target1['target1']<=5000)]
+test[['var2_product','target1','target2','target3']].groupby(['var2_product']).mean()
+target2=target2.sort_values(by=['var2_product','var1_customer','var3_type','var4_service1','var5_service2','var5_service2_2','var61_weekday','var61_weekday_2','var10_days'])
+target2.head()
+
+target2.groupby('var7_Freq').mean()
+
+test=target2[(target2['var2_product']==8)].head(20)
+&(target2['var3_type']==1)]
+test.sort_values(by=['var2_product','var3_type','var10_days'],inplace=True)
+                   ,'var1_customer','var1_customer_2','var4_service1','var5_service2','var5_service2_2','var6_ifweekend','var61_weekday','var61_weekday_2','var7_Freq','var8_Freq','var9_Freq'],inplace=True)
+test.head(20)
+
+plt.plot(range(len(test['var1_customer'])),test['target1'],'b',label="predict")
+help(exam.drop)
+
+# Data x和y
+xtrain=target[['var1_customer','var2_product','var3_type','var4_service1','var5_service2','var6_ifweekend','var7_Freq','var8_Freq','var9_Freq','var10_days']]
+exam=target2.iloc[:,:D16]
+exam.drop(axis=1,columns=['var2_product','var6_ifweekend','var7_Freq','var8_Freq','var9_Freq'],inplace=True)
+exam.drop(axis=1,columns=['var2_product','var4_service1'],inplace=True)
+exam_X=target[['var1_customer','var2_product','var3_type']]
+exam_Y=target[['target1']]
+Sample relationship：y=a+b1v1+b2v2+b3v3+b4v4+b5v5+b6v6+b7v7+b8v8+b9v9+b10v10
+exam.head()
+
+# Data Description
+print(exam.describe())
+# Missing value test
+print(exam[exam.isnull()==True].count())
+ 
+exam.boxplot()
+plt.savefig("boxplot.jpg")
+plt.show()
+##The correlation coefficient matrix R is equal to the covariance of x and y divided by the standard deviation of x times the standard deviation of y == cov（x,y）/σx*σy
+#Correlation coefficient 0~0.3 weak correlation 0.3~0.6 Moderate correlation 0.6~1 strong correlation
+print(exam.corr())
+
+# Seaborn can add an optimal fitting line and 95% confidence band by adding a parameter kind='reg'.
+sns.pairplot(exam, x_vars=['var1_customer','var2_product','var3_type'], y_vars='target1', height=7, aspect=0.8,kind = 'reg')
+plt.savefig("pairplot.jpg")
+plt.show()
+
+# X_train,X_test,Y_train,Y_test = train_test_split(exam.iloc[:,:12],exam.target1,train_size=.80, random_state=1)
+    
+print("Original data characteristics:",exam.iloc[:,:12].shape,
+       ",Training data characteristics:",X_train.shape,
+       ",Test data characteristics:",X_test.shape)
+
+print("Raw data label:",exam.target1.shape,
+      ",Training data label:",Y_train.shape,
+      ",Test data label:",Y_test.shape)
+      
+# Try to make regression model with full quantity
+X_train=exam.iloc[:,:8]
+Y_train=exam.target1
+
+# # Try regression tree models
+# from numpy import *
+# from sklearn.tree import DecisionTreeRegressor
+# import matplotlib.pyplot as plt
+
+
+# def plotfigure(X,X_test,y,yp):
+#         plt.figure()
+#         plt.scatter(X,y,c="k",label="data")
+#         plt.plot(X_test,yp,c="r",label="max_depth=5",linewidth=2)
+#         plt.xlabel("data")
+#         plt.ylabel("target")
+#         plt.title("Decision Tree Regression")
+#         plt.legend(loc='upper right')
+#         plt.show()
+#         #plt.savefig('./res.png', format='png')
+
+# clf = DecisionTreeRegressor(max_depth=8)
+# clf.fit(X_train,Y_train)
+
+# yp = clf.predict(X_train)
+# # plotfigure(X_train,Y_train,X_train,yp)
+
+# exam['pre_tree']=yp
+# exam.head()
+
+# plt.plot(range(len(yp[0:700000])),yp[0:700000],'b',label="predict")
+
+# plt.plot(range(len(yp[0:700000])),Y_train.head(700000),'b',label="predict")
+
+# X_train.head()
+
+# Import the linear regression module
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train,Y_train)
+a  = model.intercept_# intercept
+b = model.coef_# Regression coefficient
+print("Best fitting line: intercept",a,",Regression coefficient：",b)
+
+# R-squard Test
+# The determining factor is r squared
+# The accuracy of the evaluation model
+# yError sum of squares = Σ(y real value - y predict value)^2
+# The total volatility of y = Σ(y real value - y mean)^2
+# What percentage of y fluctuations are not described by the regression fitting line = SSE/The total volatility
+# What percentage of y fluctuations are described by the regression line = 1 - SSE/The total volatility = The determining factor is r squared
+# For the determining coefficient R squared 1) degree of regression line fitting: How much percentage of y fluctuations are stamped with regression lines to describe (x fluctuations)
+# 2) Value size: The higher the R squared is, the more accurate the regression model will be (value range 0~1). 1 has no error and 0 cannot complete the fitting
+score = model.score(X_train,Y_train)
+print(score)
+
+# The prediction of linear regression
+Y_pred = model.predict(X_train)
+print(Y_pred[:5])
+print(type(Y_pred))
+plt.plot(range(len(Y_pred[0:1000000])),Y_pred[0:1000000],'b',label="predict")
+# # Display
+plt.savefig("predict.jpg")
+plt.show()
+
+print(Y_train.head(5))
+plt.plot(range(len(Y_pred[0:1000000])),Y_train.head(1000000),'b',label="predict")
+
+Y_plus=Y_pred[0:1000000]-Y_train.head(1000000)
+plt.plot(range(len(Y_pred[0:1000000])),Y_plus,'b',label="predict")
+
+exam['pre_linear']=yp
+exam.head()
+
